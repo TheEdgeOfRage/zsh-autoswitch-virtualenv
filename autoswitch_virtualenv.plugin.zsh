@@ -80,11 +80,7 @@ function _maybeworkon() {
     local venv_type="$2"
     local venv_name="$(_get_venv_name $venv_dir $venv_type)"
 
-    local DEFAULT_MESSAGE_FORMAT="Switching %venv_type: ${BOLD}${PURPLE}%venv_name${NORMAL} ${GREEN}[🐍%py_version]${NORMAL}"
-    if [[ "$LANG" != *".UTF-8" ]]; then
-        # Remove multibyte characters if the terminal does not support utf-8
-        DEFAULT_MESSAGE_FORMAT="${DEFAULT_MESSAGE_FORMAT/🐍/}"
-    fi
+    local DEFAULT_MESSAGE_FORMAT="Switching %venv_type: ${BOLD}${PURPLE}%venv_name${NORMAL} ${GREEN}[%py_version]${NORMAL}"
 
     # Don't reactivate an already activated virtual environment
     if [[ -z "$VIRTUAL_ENV" || "$venv_name" != "$(_get_venv_name $VIRTUAL_ENV $venv_type)" ]]; then
