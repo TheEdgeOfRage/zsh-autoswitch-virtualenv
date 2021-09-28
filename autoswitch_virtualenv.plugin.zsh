@@ -204,10 +204,10 @@ function check_venv()
     local venv_type="$(_get_venv_type "$PWD" "unknown")"
 
     # If we still haven't got anywhere, fallback to defaults
-    if [[ "$venv_type" != "unknown" ]]; then
-        printf "Python ${PURPLE}$venv_type${NORMAL} project detected. "
-        printf "Run ${PURPLE}mkvenv${NORMAL} to setup autoswitching\n"
-    fi
+    # if [[ "$venv_type" != "unknown" ]]; then
+    #     printf "Python ${PURPLE}$venv_type${NORMAL} project detected. "
+    #     printf "Run ${PURPLE}mkvenv${NORMAL} to setup autoswitching\n"
+    # fi
     _default_venv
 }
 
