@@ -324,9 +324,9 @@ function mkvenv()
             fi
 
             if [[ ${params[(I)--verbose]} -eq 0 ]]; then
-                virtualenv $params "$(_virtual_env_dir "$venv_name")"
+                python -m venv $params "$(_virtual_env_dir "$venv_name")"
             else
-                virtualenv $params "$(_virtual_env_dir "$venv_name")" > /dev/null
+                python -m venv $params "$(_virtual_env_dir "$venv_name")" > /dev/null
             fi
 
             printf "$venv_name\n" > "$AUTOSWITCH_FILE"
