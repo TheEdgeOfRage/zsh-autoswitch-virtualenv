@@ -263,6 +263,35 @@ function rmvenv()
 }
 
 
+# cd into project environment for current directory
+function cdvenv()
+{
+    local venv_type="$(_get_venv_type "$PWD" "unknown")"
+
+    if [[ "$venv_type" == "pipenv" ]]; then
+        # pipenv cd  TODO: Change command to cd to venv
+    elif [[ "$venv_type" == "poetry" ]]; then
+        # poetry env cd TODO: Change command to cd to venv
+    else
+        if [[ -f "$AUTOSWITCH_FILE" ]]; then
+            local venv_name="$(<$AUTOSWITCH_FILE)"
+
+            # detect if we need to switch virtualenv first
+            if [[ -n "$VIRTUAL_ENV" ]]; then
+                local current_venv="$(basename $VIRTUAL_ENV)"
+                if [[ "$current_venv" = "$venv_name" ]]; then
+                    _default_venv
+                fi
+            fi
+
+            cd "$(_virtual_env_dir "$venv_name")"
+        else
+            printf "No $AUTOSWITCH_FILE file in the current directory!\n"
+        fi
+    fi
+}
+
+
 function _missing_error_message() {
     local command="$1"
     printf "${BOLD}${RED}"
