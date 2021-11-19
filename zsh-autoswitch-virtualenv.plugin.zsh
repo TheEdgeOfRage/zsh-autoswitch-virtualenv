@@ -362,48 +362,8 @@ function mkvenv()
             chmod 600 "$AUTOSWITCH_FILE"
 
             _maybeworkon "$(_virtual_env_dir "$venv_name")" "virtualenv"
-
-            install_requirements
         fi
     fi
-}
-
-
-function install_requirements() {
-    if [[ -f "$AUTOSWITCH_DEFAULT_REQUIREMENTS" ]]; then
-        printf "Install default requirements? (${PURPLE}$AUTOSWITCH_DEFAULT_REQUIREMENTS${NORMAL}) [y/N]: "
-        read ans
-
-        if [[ "$ans" = "y" || "$ans" == "Y" ]]; then
-            pip install -r "$AUTOSWITCH_DEFAULT_REQUIREMENTS"
-        fi
-    fi
-
-    if [[ -f "$PWD/setup.py" ]]; then
-        printf "Found a ${PURPLE}setup.py${NORMAL} file. Install dependencies? [y/N]: "
-        read ans
-
-        if [[ "$ans" = "y" || "$ans" = "Y" ]]; then
-            if [[ "$AUTOSWITCH_PIPINSTALL" = "FULL" ]]
-            then
-                pip install .
-            else
-                pip install -e .
-            fi
-        fi
-    fi
-
-    setopt nullglob
-    local requirements
-    for requirements in **/*requirements.txt
-    do
-        printf "Found a ${PURPLE}%s${NORMAL} file. Install? [y/N]: " "$requirements"
-        read ans
-
-        if [[ "$ans" = "y" || "$ans" = "Y" ]]; then
-            pip install -r "$requirements"
-        fi
-    done
 }
 
 
