@@ -52,6 +52,8 @@ function _get_venv_type() {
     local venv_type="${2:-virtualenv}"
     if [[ -f "$venv_dir/Pipfile" ]]; then
         venv_type="pipenv"
+    elif [[ -f "$venv_dir/uv.lock" ]]; then
+        venv_type="uv"
     elif [[ -f "$venv_dir/poetry.lock" ]]; then
         venv_type="poetry"
     elif [[ -f "$venv_dir/requirements.txt" || -f "$venv_dir/setup.py" ]]; then
@@ -120,6 +122,9 @@ function _check_path()
     if [[ -f "${check_dir}/${AUTOSWITCH_FILE}" ]]; then
         printf "${check_dir}/${AUTOSWITCH_FILE}"
         return
+    elif [[ -f "${check_dir}/uv.lock" ]]; then
+        printf "${check_dir}/uv.lock"
+        return
     elif [[ -f "${check_dir}/poetry.lock" ]]; then
         printf "${check_dir}/poetry.lock"
     elif [[ -f "${check_dir}/Pipfile" ]]; then
@@ -187,6 +192,12 @@ function check_venv()
         else
             if [[ "$venv_path" == *"/Pipfile" ]]; then
                 if type "pipenv" > /dev/null && _activate_pipenv; then
+                    return
+                fi
+            elif [[ "$venv_path" == *"/uv.lock" ]]; then
+                if type "uv" > /dev/null; then
+                    local venv_dir="$(dirname "$venv_path")/.venv"
+                    [[ -d "$venv_dir" ]] && _maybeworkon "$venv_dir" "uv"
                     return
                 fi
             elif [[ "$venv_path" == *"/poetry.lock" ]]; then
@@ -321,6 +332,15 @@ function mkvenv()
         pipenv install --dev $params
         _activate_pipenv
         return
+    elif [[ "$venv_type" == "uv" ]]; then
+        if ! type "uv" > /dev/null; then
+            _missing_error_message uv
+            return
+        fi
+
+        uv venv
+        _maybeworkon .venv "uv"
+        return
     elif [[ "$venv_type" == "poetry" ]]; then
         if ! type "poetry" > /dev/null; then
             _missing_error_message poetry
@@ -331,11 +351,6 @@ function mkvenv()
         _activate_poetry
         return
     else
-        if ! type "virtualenv" > /dev/null; then
-            _missing_error_message virtualenv
-            return
-        fi
-
         if [[ -f "$AUTOSWITCH_FILE" ]]; then
             printf "$AUTOSWITCH_FILE file already exists. If this is a mistake use the rmvenv command\n"
         else
@@ -343,7 +358,6 @@ function mkvenv()
             local venv_name="$(basename $PWD)-${pwd_hash}"
 
             printf "Creating ${PURPLE}%s${NONE} virtualenv\n" "$venv_name"
-
 
             if [[ -n "$AUTOSWITCH_DEFAULT_PYTHON" && ${params[(I)--python*]} -eq 0 ]]; then
                 printf "${PURPLE}"
